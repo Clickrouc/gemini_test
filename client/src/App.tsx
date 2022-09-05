@@ -15,10 +15,6 @@ const Styled = {
   Layout: styled(Layout)`
     min-height: 100vh;
   `,
-
-  Container: styled.div`
-    padding: 24px 50px;
-  `,
 };
 
 const App: FC = () => (
@@ -38,14 +34,12 @@ const App: FC = () => (
   </Header>
 
   <Content>
-    <Styled.Container>
       <Router>
         <Routes>
           <Route path='/' element={<Navigate to={'/accounts'} />} />
           <Route path='/accounts/*' element={<Accounts />} />
         </Routes>
       </Router>
-    </Styled.Container>
   </Content>
 
   <Footer>
