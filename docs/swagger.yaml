@@ -1,0 +1,333 @@
+basePath: /api/v1
+definitions:
+  api.AccountRequest:
+    properties:
+      _id:
+        example: 624362cbbd934cd5237e2b93
+        type: string
+      password:
+        example: Ma$m3L4D_1990
+        type: string
+      cookies:
+        type: object
+        additionalProperties:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              value:
+                type: string
+              path:
+                type: string
+              expires:
+                type: string
+              secure:
+                type: boolean
+              httpOnly:
+                type: boolean
+        example:
+          "domain.com": [
+            {
+              name: "cookie1",
+              value: "myvalue",
+              secure: true
+            },
+            {
+              name: "cookie2",
+              value: "onemorevalue",
+              secure: true,
+              path: "/login"
+            }
+          ]
+          "domain.net": [
+            {
+              name: "cookie",
+              value: "value",
+              secure: false,
+              path: "/"
+            }
+          ]
+      proxies:
+        example:
+          - PROXY230
+          - PROXY321
+        items:
+          type: string
+        type: array
+      userAgent:
+        example: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)
+          Chrome/100.0.4896.127 Safari/537.36
+        type: string
+      username:
+        example: teelka
+        type: string
+    type: object
+  api.HTTPError400:
+    properties:
+      message:
+        example: bad request
+        type: string
+    type: object
+  api.HTTPError404:
+    properties:
+      message:
+        example: no one location found for specified filter
+        type: string
+    type: object
+  api.HTTPError500:
+    properties:
+      message:
+        example: mongodb error
+        type: string
+    type: object
+  api.SimpleProxy:
+    properties:
+      label:
+        example: PROXY301
+        type: string
+    type: object
+  api.DisableAccountRequest:
+    properties:
+      disable:
+        type: boolean
+      username:
+        type: string
+    type: object
+  api.AccountResponse:
+    properties:
+      _id:
+        example: 624362cbbd934cd5237e2b93
+        type: string
+      disabled:
+        example: true
+        type: boolean
+      password:
+        example: Ma$m3L4D_1990
+        type: string
+      proxies:
+        example:
+          - PROXY211
+          - PROXY232
+        items:
+          type: string
+        type: array
+      cookies:
+        type: object
+        additionalProperties:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              value:
+                type: string
+              path:
+                type: string
+              expires:
+                type: string
+              secure:
+                type: boolean
+              httpOnly:
+                type: boolean
+        example:
+          "domain.com": [
+            {
+              name: "cookie1",
+              value: "myvalue",
+              secure: true
+            },
+            {
+              name: "cookie2",
+              value: "onemorevalue",
+              secure: true,
+              path: "/login"
+            }
+          ]
+          "domain.net": [
+            {
+              name: "cookie",
+              value: "value",
+              secure: false,
+              path: "/"
+            }
+          ]
+      userAgent:
+        example: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko)
+          Chrome/100.0.4896.127 Safari/537.36
+        type: string
+      username:
+        example: teelka
+        type: string
+    type: object
+info:
+  contact: {}
+  title: test service API
+  version: "1.0"
+paths:
+  /accounts:
+    get:
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/api.AccountResponse'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.HTTPError404'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.HTTPError500'
+      summary: Show all accounts
+      tags:
+        - accounts
+    post:
+      consumes:
+        - application/json
+      parameters:
+        - description: create account
+          in: body
+          name: account
+          required: true
+          schema:
+            $ref: '#/definitions/api.AccountRequest'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.AccountResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.HTTPError400'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.HTTPError404'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.HTTPError500'
+      summary: Create account
+      tags:
+        - accounts
+    put:
+      consumes:
+        - application/json
+      parameters:
+        - description: update account
+          in: body
+          name: account
+          required: true
+          schema:
+            $ref: '#/definitions/api.AccountRequest'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.AccountResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.HTTPError400'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.HTTPError404'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.HTTPError500'
+      summary: Update account
+      tags:
+        - accounts
+  /accounts/{account}:
+    delete:
+      parameters:
+        - description: account name
+          in: path
+          name: account
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.HTTPError404'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.HTTPError500'
+      summary: Delete account
+      tags:
+        - accounts
+  /accounts/switch:
+    put:
+      consumes:
+        - application/json
+      parameters:
+        - description: switch account state
+          in: body
+          name: account
+          required: true
+          schema:
+            $ref: '#/definitions/api.DisableAccountRequest'
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.HTTPError400'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.HTTPError404'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.HTTPError500'
+      summary: Enable/Disable account
+      tags:
+        - accounts
+  /proxies/simple:
+    get:
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/api.SimpleProxy'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.HTTPError500'
+      summary: List of proxies for dropdown lists
+      tags:
+        - proxy
+swagger: "2.0"
