@@ -10,7 +10,7 @@ import { DeleteOutlined, EditOutlined, PlusCircleOutlined } from '@ant-design/ic
 import DeletedModal from './components/DeletedModal';
 
 // TODO: Need to fetch data from server
-import data, { IAccount } from '../../mock';
+import data, { IAccount, ICookie } from '../../mock';
 import bp from '../../../../services/breakpoints';
 
 const Styled = {
@@ -24,7 +24,17 @@ const Styled = {
 
   TableContainer: styled.div`
     max-width: 100%;
+    padding: 0 0 0 24px;
+    
     overflow: auto;
+
+    @media(min-width: ${bp.tabletP}) {
+      padding: 0 24px;
+    }
+
+    @media(min-width: ${bp.tabletL}) {
+      padding: 0 48px;
+    }
   `,
 };
 
@@ -112,6 +122,7 @@ const List: FC = () => {
     },
   ];
 
+  // @ts-ignore
   return (
   <>
     <Styled.Header>
@@ -161,6 +172,40 @@ const List: FC = () => {
                     {record.proxies.map((proxy, index) => (
                       <Tag key={index}>{proxy}</Tag>
                     ))}
+                  </Col>
+                </Row>
+              )}
+
+              {Object.keys(record.cookies)?.length && (
+                <Row>
+                  <Col span={4}>
+                    <b>Cookies:</b>
+                  </Col>
+
+                  <Col span={20}>
+                    <ul>
+                    {Object.keys(record.cookies).map((key) => (
+                      <li key={key}>
+                        {key}
+                        {// @ts-ignore
+                          record.cookies?.[key] && (
+                          <ul>
+                            {// @ts-ignore
+                              (record.cookies?.[key] || []).map((item: ICookie, index: number) => (
+                              <li key={index}>
+                                Name={item.name};{' '}
+                                Value={item.value};{' '}
+                                {item.path && (`Path: '${item.path}'; `)}
+                                {item.expires && (`Expires: ${item.expires}; `)}
+                                {item.secure && ('Secure; ')}
+                                {item.type && (`Type: ${item.type};`)}
+                              </li>
+                              ))}
+                          </ul>
+                          )}
+                      </li>
+                    ))}
+                    </ul>
                   </Col>
                 </Row>
               )}
