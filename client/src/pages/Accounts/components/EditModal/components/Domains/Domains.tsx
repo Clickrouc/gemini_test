@@ -5,7 +5,7 @@ import {
 } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 
-import Cookies from './Cookies';
+import Cookies from './components/Cookies';
 
 const Domains: FC = () => (
   <Form.List name="cookies">

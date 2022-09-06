@@ -7,8 +7,9 @@ import {
 
 import {
   accounts, IAccount, ICookie, proxies,
-} from '../mock';
-import Domains from './Domains';
+} from '../../mock';
+
+import Domains from './components/Domains';
 
 interface IFieldsCookie {
   name: string;
