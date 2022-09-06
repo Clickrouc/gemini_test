@@ -1,13 +1,16 @@
-import type { FC } from 'react';
-
-import React from 'react';
+import React, { FC } from 'react';
 import {
-  BrowserRouter as Router, Routes, Route, Navigate,
+  BrowserRouter as Router, Routes, Route, Navigate, Link as RouterLink,
 } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { Layout, Menu, Typography } from 'antd';
-import Users from './pages/Users';
+import {
+  Layout, Menu, Typography,
+} from 'antd';
+
+import logo from './assets/logo.png';
+
+import Accounts from './pages/Accounts';
 
 const { Content, Footer, Header } = Layout;
 const { Text, Link } = Typography;
@@ -17,42 +20,58 @@ const Styled = {
     min-height: 100vh;
   `,
 
-  Container: styled.div`
-    padding: 24px 50px;
+  HeaderContainer: styled.div`
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  `,
+
+  Logo: styled.img`
+    flex-shrink: 0;
+    display: block;
+    height: 32px;
   `,
 };
 
 const App: FC = () => (
+  <Router>
     <Styled.Layout>
-        <Header>
-            <Menu
-                theme='dark'
-                mode='horizontal'
-                defaultSelectedKeys={['2']}
-                items={[
-                  {
-                    key: 'users',
-                    label: 'Users',
-                  },
-                ]}
-            />
-        </Header>
+      <Header>
+        <Styled.HeaderContainer>
+          <RouterLink to="/">
+            <Styled.Logo src={logo} alt="logo" />
+          </RouterLink>
+          <Menu
+            theme='dark'
+            mode='horizontal'
+            defaultSelectedKeys={['2']}
+            items={[
+              {
+                key: 'users',
+                label: 'Accounts',
+              },
+            ]}
+            style={{ flexGrow: 1 }}
+          />
+        </Styled.HeaderContainer>
+      </Header>
 
-        <Content>
-            <Styled.Container>
-                <Router>
-                    <Routes>
-                        <Route path='/' element={<Navigate to={'/users'} />} />
-                        <Route path='/users' element={<Users />} />
-                    </Routes>
-                </Router>
-            </Styled.Container>
-        </Content>
+      <Content>
+            <Routes>
+              <Route path='/' element={<Navigate to={'/accounts'} />} />
+              <Route path='/accounts/*' element={<Accounts />} />
+            </Routes>
+      </Content>
 
-        <Footer>
-            <Text>Created by <Link href='https://github.com/clickrouc' target='_blank'>@clickrouc</Link></Text>
-        </Footer>
+      <Footer>
+        <Text>
+          Created by <Link href='https://github.com/clickrouc' target='_blank'>
+            @clickrouc
+          </Link>
+        </Text>
+      </Footer>
     </Styled.Layout>
+  </Router>
 );
 
 export default App;
