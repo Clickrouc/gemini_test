@@ -10,6 +10,7 @@ import {
 } from '../../mock';
 
 import Domains from './components/Domains';
+import { useCreateAccountMutation } from '../../../../features/api/apiSlice';
 
 interface IFieldsCookie {
   name: string;
@@ -31,6 +32,8 @@ const EditModal: FC = () => {
   const navigate = useNavigate();
 
   const [data, setData] = useState<IAccount | null>(null);
+
+  const [createAccount] = useCreateAccountMutation();
 
   useEffect(() => {
     if (!params.id) navigate('/accounts/edit/new');
@@ -64,7 +67,7 @@ const EditModal: FC = () => {
     };
 
     // TODO: Need to create method for saving account
-    console.log('Success:', request);
+    createAccount(request);
   };
 
   return (

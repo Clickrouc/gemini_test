@@ -10,12 +10,13 @@ import {
 import { DeleteOutlined, EditOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
 
-import { accounts, IAccount, ICookie } from './mock';
+import { IAccount, ICookie } from './mock';
 import bp from '../../services/breakpoints';
 
 import EditModal from './components/EditModal/EditModal';
 import DeletedModal from './components/DeletedModal';
 import SwitchModal from './components/SwitchModal';
+import { useGetAccountsQuery } from '../../features/api/apiSlice';
 
 const Styled = {
   Header: styled.div`
@@ -49,11 +50,13 @@ const Accounts: FC = () => {
   const [isSwitchModalOpen, setIsSwitchModalOpen] = useState<boolean>(false);
   const [showedPasswords, setShowedPasswords] = useState<{ [key: string]: boolean }>({});
 
+  const { data: accounts } = useGetAccountsQuery({});
+
   useEffect(() => {
     if (!accounts) return;
     setShowedPasswords({});
 
-    accounts.forEach((item) => {
+    (accounts?.results || []).forEach((item: any) => {
       setShowedPasswords({
         ...showedPasswords,
         [item._id]: false,
@@ -159,7 +162,7 @@ const Accounts: FC = () => {
 
       <Styled.TableContainer>
         <Table
-          dataSource={accounts}
+          dataSource={accounts?.results || []}
           columns={columns}
           pagination={false}
           rowKey="_id"
