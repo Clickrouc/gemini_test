@@ -6,7 +6,7 @@ import {
   Button, Input, Modal, Space, Typography,
 } from 'antd';
 
-import { IAccount } from '../../../mock';
+import { IAccount } from '../mock';
 
 const { Text } = Typography;
 
@@ -37,8 +37,9 @@ const DeletedModal: FC<Props> = ({
 
   return (
     <Modal
-      title="Basic Modal"
+      title="Remove user"
       open={isOpened}
+      onCancel={closeModal}
       footer={[
         <Button
           key="back"
