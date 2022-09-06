@@ -2,17 +2,19 @@ import React, { FC, useEffect, useState } from 'react';
 import {
   Link, Route, Routes,
 } from 'react-router-dom';
+import styled from 'styled-components';
 
 import {
   Button, Checkbox, Col, Row, Space, Switch, Table, Tag,
 } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusCircleOutlined } from '@ant-design/icons';
-import styled from 'styled-components';
 import { ColumnsType } from 'antd/es/table';
-import EditModal from './components/EditModal';
+
 import { accounts, IAccount, ICookie } from './mock';
-import DeletedModal from './components/DeletedModal';
 import bp from '../../services/breakpoints';
+
+import EditModal from './components/EditModal/EditModal';
+import DeletedModal from './components/DeletedModal';
 import SwitchModal from './components/SwitchModal';
 
 const Styled = {
