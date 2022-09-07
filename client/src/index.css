@@ -1,0 +1,22 @@
+#root {
+    display: flex;
+    min-height: 100%;
+}
+
+.ant-layout-header {
+    padding: 0 24px;
+}
+
+.ant-layout-footer {
+    padding: 16px 24px;
+}
+
+@media (min-width: 1024px) {
+    .ant-layout-header {
+        padding: 0 48px;
+    }
+
+    .ant-layout-footer {
+        padding: 24px 48px;
+    }
+}
