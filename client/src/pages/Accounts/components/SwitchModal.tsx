@@ -4,7 +4,7 @@ import React, {
 
 import { Button, Modal, Typography } from 'antd';
 
-import { IAccount } from '../mock';
+import { IAccount } from '../../../services/accounts/types';
 
 const { Text } = Typography;
 

@@ -5,18 +5,23 @@ import {
 import styled from 'styled-components';
 
 import {
-  Button, Checkbox, Col, Row, Space, Switch, Table, Tag,
+  Button, Checkbox, Col, message, Row, Space, Switch, Table, Tag,
 } from 'antd';
 import { DeleteOutlined, EditOutlined, PlusCircleOutlined } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
 
-import { IAccount, ICookie } from './mock';
+import { IAccount, ICookie } from '../../services/accounts/types';
 import bp from '../../services/breakpoints';
 
 import EditModal from './components/EditModal/EditModal';
 import DeletedModal from './components/DeletedModal';
 import SwitchModal from './components/SwitchModal';
-import { useGetAccountsQuery } from '../../features/api/apiSlice';
+import {
+  useDeleteAccountMutation,
+  useGetAccountsQuery,
+  useUpdateAccountMutation,
+} from '../../services/accounts/api';
+import { cookieConverter, convertError } from '../../utils';
 
 const Styled = {
   Header: styled.div`
@@ -49,29 +54,52 @@ const Accounts: FC = () => {
   const [switchedItem, setSwitchedItem] = useState<IAccount | null>(null);
   const [isSwitchModalOpen, setIsSwitchModalOpen] = useState<boolean>(false);
   const [showedPasswords, setShowedPasswords] = useState<{ [key: string]: boolean }>({});
+  const [accounts, setAccounts] = useState<IAccount[]>([]);
 
-  const { data: accounts } = useGetAccountsQuery({});
+  const { data } = useGetAccountsQuery({});
+  const [updateAccount] = useUpdateAccountMutation();
+  const [deleteAccount] = useDeleteAccountMutation();
 
   useEffect(() => {
-    if (!accounts) return;
+    if (!data) return;
     setShowedPasswords({});
 
-    (accounts?.results || []).forEach((item: any) => {
-      setShowedPasswords({
-        ...showedPasswords,
-        [item._id]: false,
+    const arr: IAccount[] = [];
+    const passwords: { [key: string]: boolean } = {};
+    (data?.results || []).forEach((item: any) => {
+      passwords[item.id] = false;
+      arr.push({
+        ...item,
+        cookies: cookieConverter(item.cookies, true),
       });
-    }, []);
-  }, accounts);
+    });
+
+    setShowedPasswords(passwords);
+    setAccounts(arr);
+  }, [data]);
 
   const removeItem = (): void => {
-    console.log(deletedItem?._id);
-    // TODO: Need to create method for removing account
+    deleteAccount({
+      accountId: deletedItem?.id,
+    }).then((res: any) => {
+      if (res.error) return message.error(convertError(res.error));
+      setIsRemoveModalOpen(false);
+      return message.success('Account has been deleted successfully');
+    });
   };
 
   const switchItem = (): void => {
-    console.log(switchedItem?._id);
-    // TODO: Need to create method for switch account
+    const account: IAccount | undefined = accounts.find((item) => item.id === switchedItem?.id);
+    if (account) {
+      account.disabled = !account.disabled;
+      updateAccount(account).then((res: any) => {
+        if (res.error) return message.error(convertError(res.error));
+        setIsSwitchModalOpen(false);
+        return message.success('Account has been switched successfully');
+      });
+    } else {
+      message.error('Something went wrong');
+    }
   };
 
   const columns: ColumnsType<IAccount> = [
@@ -89,15 +117,15 @@ const Accounts: FC = () => {
       title: 'Password',
       dataIndex: 'password',
       key: 'password',
-      render: (_, { _id, password }) => (
+      render: (_, { id, password }) => (
         <>
-          {showedPasswords[_id] ? password : '*****'}<br />
+          {showedPasswords[id] ? password : '*****'}<br />
           <Checkbox
-            checked={showedPasswords[_id]}
+            checked={showedPasswords[id]}
             onChange={(e) => {
               setShowedPasswords({
                 ...showedPasswords,
-                [_id]: e.target.checked,
+                [id]: e.target.checked,
               });
             }}
           >
@@ -125,7 +153,7 @@ const Accounts: FC = () => {
       key: 'actions',
       render: (_, item) => (
         <Space>
-          <Link to={`/accounts/edit/${item._id}`}>
+          <Link to={`/accounts/edit/${item.id}`}>
             <Button type="text" icon={<EditOutlined />} />
           </Link>
 
@@ -162,10 +190,10 @@ const Accounts: FC = () => {
 
       <Styled.TableContainer>
         <Table
-          dataSource={accounts?.results || []}
+          dataSource={accounts || []}
           columns={columns}
           pagination={false}
-          rowKey="_id"
+          rowKey="id"
           expandable={{
             expandedRowRender: (record) => (
               <Space direction="vertical" style={{ width: '100%' }}>
@@ -181,7 +209,7 @@ const Accounts: FC = () => {
                   </Row>
                 )}
 
-                {record.proxies?.length && (
+                {record.proxies?.length ? (
                   <Row>
                     <Col span={4}>
                       <b>Proxies:</b>
@@ -193,9 +221,9 @@ const Accounts: FC = () => {
                       ))}
                     </Col>
                   </Row>
-                )}
+                ) : null}
 
-                {Object.keys(record.cookies)?.length && (
+                {Object.keys(record.cookies)?.length ? (
                   <Row>
                     <Col span={4}>
                       <b>Cookies:</b>
@@ -227,7 +255,7 @@ const Accounts: FC = () => {
                       </ul>
                     </Col>
                   </Row>
-                )}
+                ) : null}
               </Space>
             ),
           }}
@@ -252,8 +280,8 @@ const Accounts: FC = () => {
       />
 
       <Routes>
-        <Route path="edit" element={<EditModal />}>
-          <Route path=":id" element={<EditModal />} />
+        <Route path="edit" element={<EditModal accounts={accounts || []} />}>
+          <Route path=":id" element={<EditModal accounts={accounts || []} />} />
         </Route>
       </Routes>
     </>

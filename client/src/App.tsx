@@ -1,25 +1,43 @@
 import React, { FC } from 'react';
-import { ApiProvider } from '@reduxjs/toolkit/dist/query/react';
 import {
-  BrowserRouter as Router, Routes, Route, Navigate,
+  BrowserRouter as Router, Routes, Route, Navigate, Outlet,
 } from 'react-router-dom';
+import { Provider } from 'react-redux';
 
-import { apiSlice } from './features/api/apiSlice';
+import store from './services/store';
 
 import BasicLayout from './components/BasicLayout';
+
+import Auth from './pages/Auth';
 import Accounts from './pages/Accounts';
 
+import { useGetAccountsQuery } from './services/accounts/api';
+
+const CheckPermissions: FC = () => {
+  const { isError } = useGetAccountsQuery({});
+  const token = localStorage.getItem('accessToken');
+
+  if (isError || !token) {
+    return <Navigate to="/auth/login" />;
+  }
+
+  return <Outlet />;
+};
+
 const App: FC = () => (
-  <ApiProvider api={apiSlice}>
+  <Provider store={store}>
     <Router>
-      <BasicLayout>
-        <Routes>
-          <Route path='/' element={<Navigate to={'/accounts'} />} />
-          <Route path='/accounts/*' element={<Accounts />} />
-        </Routes>
-      </BasicLayout>
+      <Routes>
+          <Route element={<CheckPermissions />}>
+            <Route element={<BasicLayout />}>
+              <Route path='/' element={<Navigate to={'/accounts'} />} />
+              <Route path='/accounts/*' element={<Accounts />} />
+            </Route>
+          </Route>
+        <Route path='/auth/*' element={<Auth />} />
+      </Routes>
     </Router>
-  </ApiProvider>
+  </Provider>
 );
 
 export default App;
