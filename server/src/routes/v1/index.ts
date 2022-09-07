@@ -2,7 +2,8 @@ import express, { Router } from 'express';
 import authRoute from './auth.route';
 import docsRoute from './swagger.route';
 import userRoute from './user.route';
-import accountsRoute from './accounts.route';
+import accountRoute from './account.route';
+import proxyRoute from './proxy.route';
 import config from '../../config/config';
 
 const router = express.Router();
@@ -23,7 +24,11 @@ const defaultIRoute: IRoute[] = [
   },
   {
     path: '/accounts',
-    route: accountsRoute,
+    route: accountRoute,
+  },
+  {
+    path: '/proxies',
+    route: proxyRoute,
   },
 ];
 
