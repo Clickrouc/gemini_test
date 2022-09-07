@@ -1,8 +1,9 @@
-import React, { FC, ReactNode } from 'react';
+import React, { FC } from 'react';
 import styled from 'styled-components';
 
 import { Layout, Typography } from 'antd';
 
+import { Outlet } from 'react-router-dom';
 import LayoutHeader from './components/LayoutHeader';
 
 const { Content, Footer } = Layout;
@@ -10,20 +11,18 @@ const { Text, Link } = Typography;
 
 const Styled = {
   Layout: styled(Layout)`
-    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
   `,
 };
 
-interface Props {
-  children: ReactNode
-}
-
-const BasicLayout: FC<Props> = ({ children }) => (
+const BasicLayout: FC = () => (
   <Styled.Layout>
     <LayoutHeader />
 
     <Content>
-      {children}
+      <Outlet />
     </Content>
 
     <Footer>

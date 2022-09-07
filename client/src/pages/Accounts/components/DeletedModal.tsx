@@ -6,7 +6,7 @@ import {
   Button, Input, Modal, Space, Typography,
 } from 'antd';
 
-import { IAccount } from '../mock';
+import { IAccount } from '../../../services/accounts/types';
 
 const { Text } = Typography;
 

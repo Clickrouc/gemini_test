@@ -2,14 +2,15 @@ import React, { FC, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import {
-  Button, Form, Input, Modal, Select,
+  Button, Form, Input, message, Modal, Select,
 } from 'antd';
 
-import {
-  accounts, IAccount, ICookie, proxies,
-} from '../../mock';
-
+import { IAccount, ICookie } from '../../../../services/accounts/types';
+import { useUpdateAccountMutation } from '../../../../services/accounts/api';
 import Domains from './components/Domains';
+import { cookieConverter, convertError } from '../../../../utils';
+import { useGetProxiesQuery } from '../../../../services/proxies/api';
+import { IProxy } from '../../../../services/proxies/types';
 
 interface IFieldsCookie {
   name: string;
@@ -22,26 +23,43 @@ interface IFields {
   proxies?: string[];
   userAgent?: string;
   cookies: IFieldsCookie[];
+  disabled: boolean;
 }
 
-const EditModal: FC = () => {
+interface Props {
+  accounts: IAccount[];
+}
+
+const EditModal: FC<Props> = ({ accounts }) => {
   const [form] = Form.useForm();
 
   const params = useParams();
   const navigate = useNavigate();
 
   const [data, setData] = useState<IAccount | null>(null);
+  const [isLoading, setLoading] = useState<boolean>(false);
+
+  const [createAccount] = useUpdateAccountMutation();
+  const { data: proxies } = useGetProxiesQuery({});
+
+  useEffect(() => {
+    form.setFieldsValue({
+      proxies: [],
+      cookies: [],
+    });
+  }, [form]);
 
   useEffect(() => {
     if (!params.id) navigate('/accounts/edit/new');
     if (params.id === 'new') return;
-    setData(accounts.find((item) => item._id === params.id) || null);
-  }, []);
+    setData(accounts.find((item) => item.id === params.id) || null);
+  }, [accounts, navigate, params.id]);
 
   useEffect(() => {
     if (!data) return;
 
     form.setFieldsValue({
+      id: data?.id,
       username: data?.username,
       password: data?.password,
       proxies: data?.proxies || [],
@@ -50,8 +68,9 @@ const EditModal: FC = () => {
         name: key,
         cookies: data?.cookies[key],
       })),
+      disabled: data?.disabled ? data.disabled : false,
     });
-  }, [data]);
+  }, [data, form]);
 
   const onFinish = (values: IFields) => {
     const cookies: { [key: string]: ICookie } = {};
@@ -60,11 +79,17 @@ const EditModal: FC = () => {
     });
     const request = {
       ...values,
-      cookies,
+      cookies: cookieConverter(cookies),
     };
 
-    // TODO: Need to create method for saving account
-    console.log('Success:', request);
+    setLoading(true);
+    createAccount(request).then((res: any) => {
+      setLoading(false);
+      if (res.error) return message.error(convertError(res.error));
+      message.success('Account has been updated successfully');
+      navigate('/accounts');
+      return null;
+    });
   };
 
   return (
@@ -87,16 +112,9 @@ const EditModal: FC = () => {
           key="submit"
           type="primary"
           onClick={() => {
-            form
-              .validateFields()
-              .then((values) => {
-                form.resetFields();
-                onFinish(values);
-              })
-              .catch((info) => {
-                console.log('Validate Failed:', info);
-              });
+            form.validateFields().then(onFinish);
           }}
+          loading={isLoading}
         >
           Submit
         </Button>,
@@ -110,6 +128,14 @@ const EditModal: FC = () => {
         onFinish={onFinish}
         scrollToFirstError
       >
+        <Form.Item name="id" noStyle>
+          <Input type="hidden" />
+        </Form.Item>
+
+        <Form.Item name="disabled" noStyle>
+          <Input type="hidden" />
+        </Form.Item>
+
         <Form.Item
           label="Username"
           name="username"
@@ -144,9 +170,9 @@ const EditModal: FC = () => {
             allowClear
             placeholder="Please select"
           >
-            {proxies.map((proxy, index) => (
-              <Select.Option key={index} value={proxy.label}>
-                {proxy.label}
+            {(proxies?.results || []).map((proxy: IProxy) => (
+              <Select.Option key={proxy.id} value={proxy.name}>
+                {proxy.name}
               </Select.Option>
             ))}
           </Select>
