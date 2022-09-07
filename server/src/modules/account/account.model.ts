@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { ICookieDoc, ICookieModel, IAccountDoc, IAccountModel } from '@/modules/accounts/accounts.interfaces';
+import { ICookieDoc, ICookieModel, IAccountDoc, IAccountModel } from '@/modules/account/account.interfaces';
 import { toJSON } from '../toJSON';
 import { paginate } from '../paginate';
 
@@ -7,13 +7,16 @@ const cookiesSchema = new mongoose.Schema<ICookieDoc, ICookieModel>({
   name: {
     type: String,
     required: true,
+    trim: true,
   },
   value: {
     type: String,
     required: true,
+    trim: true,
   },
   path: {
     type: String,
+    trim: true,
   },
   expires: {
     type: String,
@@ -30,6 +33,7 @@ const accountsSchema = new mongoose.Schema<IAccountDoc, IAccountModel>({
   password: {
     type: String,
     required: true,
+    trim: true,
   },
   proxies: {
     type: [String],
@@ -44,6 +48,7 @@ const accountsSchema = new mongoose.Schema<IAccountDoc, IAccountModel>({
   username: {
     type: String,
     required: true,
+    trim: true,
   },
 });
 

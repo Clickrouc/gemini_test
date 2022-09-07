@@ -1,8 +1,10 @@
 import Joi from 'joi';
+import { objectId } from '../validate';
 
-export const createUser = {
+export const updateAccount = {
   body: Joi.object().keys({
-    disabled: Joi.boolean().required(),
+    id: Joi.string(),
+    disabled: Joi.boolean().default(false),
     password: Joi.string().required(),
     proxies: Joi.array().items(Joi.string()),
     cookies: Joi.object({
@@ -16,7 +18,7 @@ export const createUser = {
         })
       ),
     }).unknown(),
-    userAgent: Joi.string(),
+    userAgent: Joi.string().allow(''),
     username: Joi.string().required(),
   }),
 };
@@ -28,5 +30,11 @@ export const getAccounts = {
     projectBy: Joi.string(),
     limit: Joi.number().integer(),
     page: Joi.number().integer(),
+  }),
+};
+
+export const deleteAccount = {
+  query: Joi.object().keys({
+    accountId: Joi.string().custom(objectId),
   }),
 };
