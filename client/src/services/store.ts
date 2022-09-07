@@ -12,6 +12,8 @@ const store = configureStore({
   // @ts-ignore
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(
     authApi.middleware,
+    accountsApi.middleware,
+    proxiesApi.middleware,
   ),
   devTools: process.env.NODE_ENV === 'development',
 });
